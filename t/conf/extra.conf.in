@@ -1,0 +1,15 @@
+PerlModule Apache2::Layout
+
+Alias /simple @DocumentRoot@
+Alias /raw @DocumentRoot@
+LogLevel debug
+<Location /simple>
+  AddOutputFilterByType DEFLATE text/html
+  PerlOutputFilterHandler Apache2::Layout
+  PerlSetVar LayoutFooter /footer.html
+  PerlSetVar LayoutHeader /header.html
+  PerlSetVar LayoutCSS /head.html
+  PerlSetVar LayoutComments On
+  PerlSetVar LayoutDebug On
+  Options +Indexes
+</Location>
