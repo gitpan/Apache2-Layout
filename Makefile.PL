@@ -27,8 +27,8 @@ ModPerl::MM::WriteMakefile(
     AUTHOR        => 'Philippe M. Chiasson <gozer@ectoplasm.org>',
     SIGN          => 1,
     LICENSE       => 'perl',
-    VERSION_FROM  => 'Layout.pm',
-    ABSTRACT_FROM => 'Layout.pm',
+    VERSION_FROM  => 'lib/Apache2/Layout.pm',
+    ABSTRACT_FROM => 'lib/Apache2/Layout.pm',
     INC =>
       "-I/usr/include/httpd -I/usr/include/apache2/ -I/usr/include/apr-1",
     PREREQ_PM => {
@@ -39,6 +39,6 @@ ModPerl::MM::WriteMakefile(
 );
 
 sub MY::dist {
-    system "pod2text *.pm > README";
+    system "pod2text lib/Apache2/*.pm > README";
     shift->MM::dist;
 }

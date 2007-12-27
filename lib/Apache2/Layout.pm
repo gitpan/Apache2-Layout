@@ -18,7 +18,7 @@ use Apache2::Const -compile => qw(OK DECLINED);
 use strict;
 use warnings;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 use XSLoader;
 XSLoader::load __PACKAGE__, $VERSION;
@@ -194,6 +194,8 @@ sub handler {
     my $rv = $f->next->pass_brigade($bb_ctx);
     return $rv unless $rv == APR::Const::SUCCESS;
 
+    $bb_ctx->destroy();
+
     # Stash our context for next time around
     $f->ctx($context);
 
@@ -208,10 +210,12 @@ sub _inject {
 
     my $rv = $f->next->pass_brigade($bb_ctx);
     return $rv unless $rv == APR::Const::SUCCESS;
-    _call($url, $f);    #XXX: move back to perl land
+    $rv = _call($url, $f);    #XXX: move back to perl land
+    return $rv unless $rv == APR::Const::SUCCESS;
     $bb_ctx->insert_tail(
              APR::Bucket->new($bb->bucket_alloc, "<!-- $url END -->\n"))
       if $comments;
+    return $rv;
 }
 
 use Apache2::SubRequest ();

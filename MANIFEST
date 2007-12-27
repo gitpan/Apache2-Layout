@@ -1,5 +1,5 @@
 Changes
-Layout.pm
+lib/Apache2/Layout.pm
 Layout.xs
 MANIFEST
 MANIFEST.SKIP
