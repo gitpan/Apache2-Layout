@@ -1,4 +1,5 @@
 Changes
+Changes.yml
 lib/Apache2/Layout.pm
 Layout.xs
 MANIFEST
@@ -11,6 +12,7 @@ t/02simple.t
 t/03pod-cover.t
 t/03pod.t
 t/conf/extra.conf.in
+t/htdocs/cgi/test.pl
 t/htdocs/footer.html
 t/htdocs/head.html
 t/htdocs/header.html

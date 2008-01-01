@@ -16,3 +16,4 @@ t/htdocs/index.html
 t/logs/access_log
 t/logs/error_log
 t/logs/httpd.pid
+t/logs/accept.log.\d+

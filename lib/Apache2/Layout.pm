@@ -18,7 +18,7 @@ use Apache2::Const -compile => qw(OK DECLINED);
 use strict;
 use warnings;
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 use XSLoader;
 XSLoader::load __PACKAGE__, $VERSION;
@@ -34,6 +34,11 @@ sub handler {
     unless ($r->content_type =~ m!text/html!i) {
         $log->debug('skipping request to ',
                     $r->uri, ' (not an HTML document)');
+        return Apache2::Const::DECLINED;
+    }
+
+    unless ($r->is_initial_req) {
+        $log->debug('skipping subrequest ', $r->uri);
         return Apache2::Const::DECLINED;
     }
 
@@ -117,9 +122,10 @@ sub handler {
         $bucket->remove;
 
         if ($bucket->is_eos) {
-            if ($context->{debug}) {
+            if ($context->{debug} && $context->{matched}) {
+		my $ver = __PACKAGE__ . " v$VERSION";
                 my $msg =
-                  "matched $context->{matched} times out of $context->{tests} over $context->{reads} reads and $context->{pass} passes";
+                  "$ver matched $context->{matched} times out of $context->{tests} over $context->{reads} reads and $context->{pass} passes";
                 if ($context->{comments}) {
                     $bb_ctx->insert_tail(
                                 APR::Bucket->new(
@@ -210,7 +216,7 @@ sub _inject {
 
     my $rv = $f->next->pass_brigade($bb_ctx);
     return $rv unless $rv == APR::Const::SUCCESS;
-    $rv = _call($url, $f);    #XXX: move back to perl land
+    $rv = _call($url, $r);    #XXX: move back to perl land
     return $rv unless $rv == APR::Const::SUCCESS;
     $bb_ctx->insert_tail(
              APR::Bucket->new($bb->bucket_alloc, "<!-- $url END -->\n"))
@@ -220,15 +226,17 @@ sub _inject {
 
 use Apache2::SubRequest ();
 
+my $call = \&_call_xs;
 sub _call {
-    my ($url, $f) = @_;
-    my $r = $f->r;
-    $f = $f->next;
-    return _call_xs($url, $f);
+   my ($url, $r) = @_;
+   return $call->($url, $r); 
+}
 
+sub _call_pp {
+    my ($url, $r) = @_;
     # This Pure-perl code would work, if not for a bug in mod_perl
-    #
-    my $subr = $r->lookup_uri($url, $f);
+    # mod_perl 2.0.4 will be fixed (r607687)
+    my $subr = $r->lookup_uri($url);
     my $rc = $subr->run;
 
     return $rc;

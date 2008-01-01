@@ -13,9 +13,15 @@ BEGIN {
 
 use Apache::TestRequest;
 
-plan tests => 6;
+my @urls = qw(
+/simple/simple.html
+/cgi/test.pl
+);
 
-my $content = GET '/simple/simple.html';
+plan tests => 6 * scalar(@urls);
+
+foreach my $url (@urls) {
+my $content = GET $url;
 
 ok $content;
 ok t_cmp(200, $content->code, "Check that the request was OK");
@@ -27,3 +33,5 @@ ok t_cmp($html, qr[This is the footer], "LayoutFooter found");
 ok t_cmp($html,
          qr[matched \d+ times out of \d+ over \d+ reads and \d+ passes],
          "LayoutDebug/LayoutComment found");
+
+}

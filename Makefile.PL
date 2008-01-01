@@ -40,5 +40,6 @@ ModPerl::MM::WriteMakefile(
 
 sub MY::dist {
     system "pod2text lib/Apache2/*.pm > README";
+    system "changes -f Changes.yml --ff > Changes";
     shift->MM::dist;
 }
