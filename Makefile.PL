@@ -39,7 +39,14 @@ ModPerl::MM::WriteMakefile(
 );
 
 sub MY::dist {
-    system "pod2text lib/Apache2/*.pm > README";
-    system "changes -f Changes.yml --ff > Changes";
-    shift->MM::dist;
+    my $orig = shift->MM::dist;
+    $orig =~ s/(DIST_DEFAULT\s*=)(.*)/$1 autogen-dist $2/g;
+    $orig .= <<'EOF';
+autogen-dist: README Changes
+README: lib/Apache2/Layout.pm
+	pod2text lib/Apache2/*.pm > README
+Changes: Changes.yml
+	changes -f Changes.yml --ff > Changes
+EOF
+    return $orig;
 }

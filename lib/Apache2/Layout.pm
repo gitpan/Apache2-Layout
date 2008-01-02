@@ -18,7 +18,7 @@ use Apache2::Const -compile => qw(OK DECLINED);
 use strict;
 use warnings;
 
-our $VERSION = '0.3';
+our $VERSION = '0.4';
 
 use XSLoader;
 XSLoader::load __PACKAGE__, $VERSION;
@@ -119,8 +119,6 @@ sub handler {
     while (!$bb->is_empty) {
         my $bucket = $bb->first;
 
-        $bucket->remove;
-
         if ($bucket->is_eos) {
             if ($context->{debug} && $context->{matched}) {
 		my $ver = __PACKAGE__ . " v$VERSION";
@@ -195,6 +193,7 @@ sub handler {
             $bb_ctx->insert_tail(
                             APR::Bucket->new($bb->bucket_alloc, $data));
         }
+    $bucket->remove;
     }
 
     my $rv = $f->next->pass_brigade($bb_ctx);

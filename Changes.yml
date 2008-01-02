@@ -4,6 +4,12 @@ global:
 releases:
   - author: 'Philippe M. Chiasson <gozer@ectoplasm.org>'
     changes:
+      - Removing a bucket before reading it was a bug.
+    date: 2008-01-02T23:04:47Z
+    tags: []
+    version: 0.04
+  - author: 'Philippe M. Chiasson <gozer@ectoplasm.org>'
+    changes:
       - 'When running sub-requests, make sure to pass them throught the entire initial filter chain'
       - Skip filtering for sub-requests
     date: 2008-01-01T19:01:33Z

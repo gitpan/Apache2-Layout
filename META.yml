@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Apache2-Layout
-version:             0.3
+version:             0.4
 abstract:            mod_perl 2.0 html layout engine
 license:             perl
 generated_by:        ExtUtils::MakeMaker version 6.36
