@@ -18,7 +18,7 @@ use Apache2::Const -compile => qw(OK DECLINED);
 use strict;
 use warnings;
 
-our $VERSION = '0.4';
+our $VERSION = '0.5';
 
 use XSLoader;
 XSLoader::load __PACKAGE__, $VERSION;
@@ -127,7 +127,7 @@ sub handler {
                 if ($context->{comments}) {
                     $bb_ctx->insert_tail(
                                 APR::Bucket->new(
-                                    $bb->bucket_alloc, "<!-- $msg -->\n"
+                                    $bb_ctx->bucket_alloc, "<!-- $msg -->\n"
                                 )
                     );
                 }
@@ -136,6 +136,7 @@ sub handler {
                     $log->debug("[$uri] $msg");
                 }
             }
+            $bucket->remove;
             $bb_ctx->insert_tail($bucket);
             last;
         }
@@ -162,7 +163,7 @@ sub handler {
                     my $url   = $tag->{url};
 
                     $bb_ctx->insert_tail(
-                          APR::Bucket->new($bb->bucket_alloc, $before));
+                          APR::Bucket->new($bb_ctx->bucket_alloc, $before));
                     if ($where eq 'before') {
                         my $rv = _inject($r, $f, $bb, $bb_ctx, $url,
                                          $context->{comments});
@@ -170,7 +171,7 @@ sub handler {
                     }
 
                     $bb_ctx->insert_tail(
-                        APR::Bucket->new($bb->bucket_alloc, $html_tag));
+                        APR::Bucket->new($bb_ctx->bucket_alloc, $html_tag));
 
                     if ($where eq 'after') {
                         my $rv = _inject($r, $f, $bb, $bb_ctx, $url,
@@ -191,7 +192,7 @@ sub handler {
 
             # Pass thru unmatched data unmodified
             $bb_ctx->insert_tail(
-                            APR::Bucket->new($bb->bucket_alloc, $data));
+                            APR::Bucket->new($bb_ctx->bucket_alloc, $data));
         }
     $bucket->remove;
     }
@@ -210,7 +211,7 @@ sub handler {
 sub _inject {
     my ($r, $f, $bb, $bb_ctx, $url, $comments) = @_;
     $bb_ctx->insert_tail(
-           APR::Bucket->new($bb->bucket_alloc, "<!-- $url START -->\n"))
+           APR::Bucket->new($bb_ctx->bucket_alloc, "<!-- $url START -->\n"))
       if $comments;
 
     my $rv = $f->next->pass_brigade($bb_ctx);
@@ -218,7 +219,7 @@ sub _inject {
     $rv = _call($url, $r);    #XXX: move back to perl land
     return $rv unless $rv == APR::Const::SUCCESS;
     $bb_ctx->insert_tail(
-             APR::Bucket->new($bb->bucket_alloc, "<!-- $url END -->\n"))
+             APR::Bucket->new($bb_ctx->bucket_alloc, "<!-- $url END -->\n"))
       if $comments;
     return $rv;
 }
