@@ -18,7 +18,7 @@ use Apache2::Const -compile => qw(OK DECLINED);
 use strict;
 use warnings;
 
-our $VERSION = '0.5';
+our $VERSION = '0.6';
 
 use XSLoader;
 XSLoader::load __PACKAGE__, $VERSION;
@@ -216,7 +216,7 @@ sub _inject {
 
     my $rv = $f->next->pass_brigade($bb_ctx);
     return $rv unless $rv == APR::Const::SUCCESS;
-    $rv = _call($url, $r);    #XXX: move back to perl land
+    $rv = _call($url, $r, $f);    #XXX: move back to perl land
     return $rv unless $rv == APR::Const::SUCCESS;
     $bb_ctx->insert_tail(
              APR::Bucket->new($bb_ctx->bucket_alloc, "<!-- $url END -->\n"))
@@ -228,15 +228,14 @@ use Apache2::SubRequest ();
 
 my $call = \&_call_xs;
 sub _call {
-   my ($url, $r) = @_;
-   return $call->($url, $r); 
+   return $call->(@_); 
 }
 
 sub _call_pp {
-    my ($url, $r) = @_;
+    my ($url, $r, $f) = @_;
     # This Pure-perl code would work, if not for a bug in mod_perl
     # mod_perl 2.0.4 will be fixed (r607687)
-    my $subr = $r->lookup_uri($url);
+    my $subr = $r->lookup_uri($url, $f->next);
     my $rc = $subr->run;
 
     return $rc;

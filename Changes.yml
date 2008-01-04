@@ -4,6 +4,12 @@ global:
 releases:
   - author: 'Philippe M. Chiasson <gozer@ectoplasm.org>'
     changes:
+      - Fix a bug that could cause output mangling when stacked with other filters
+    date: 2008-01-04T01:19:15Z
+    tags: []
+    version: 0.06
+  - author: 'Philippe M. Chiasson <gozer@ectoplasm.org>'
+    changes:
       - 'Allocate new buckets from the new brigade, otherwise, things can go leaky'
     date: 2008-01-02T23:59:48Z
     tags: []
